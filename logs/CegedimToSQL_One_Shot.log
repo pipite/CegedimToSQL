@@ -1,0 +1,49 @@
+
+2025-09-02 19:45:32 : LOG :     Query_BDD_CI                     : Chargement de la table [CI] en memoire
+2025-09-02 19:45:42 : LOG :      QueryTable                      : 10303 enregistrements chargés depuis la table 'CI' ( 10303 clés [RecID] )
+
+2025-09-02 19:45:42 : LOG :   MAIN                               : Récupération des équipements Ivanti/HEAT...
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Services
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Services : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VOIPs
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VOIPs : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__EnterpriseApplications
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__EnterpriseApplications : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Servers
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Servers : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__RSAs
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__RSAs : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VirtualWorkstations
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VirtualWorkstations : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VideoConferences
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VideoConferences : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Routers
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Routers : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__TechnicalApplications
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__TechnicalApplications : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__MobileDevices
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__MobileDevices : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :    Query_type                        : https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Workstations
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Workstations : HTTP Error:  - 
+
+2025-09-02 19:45:42 : LOG :     Update_BDD_CI                    : Update de la table CI
+2025-09-02 19:45:42 : LOG :      UpdateTable                     : Synchronisation de la table 'CI' (sans suppression)
+2025-09-02 19:45:42 : LOG :      UpdateTable                     : Aucune modification à effectuer
+
+2025-09-02 19:45:42 : LOG :        Query_BDD_CI                  : Chargement de la table [CI] en memoire
+2025-09-02 19:45:51 : LOG :         QueryTable                   : 10303 enregistrements chargés depuis la table 'CI' ( 10303 clés [RecID] )
+2025-09-02 19:45:51 : LOG :    QUIT                              : 11 erreur, 0 warning, Duree d'execution : 18.6 secondes
+2025-09-02 19:45:51 : END :   MAIN                               : Process terminé
+2025-09-02 19:45:51 : END :    CegedimToSQL.ps1                  : CegedimToSQL.ps1: line 650
+2025-09-02 19:45:51 : END :    <ScriptBlock>                     : <No file>

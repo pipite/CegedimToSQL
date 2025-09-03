@@ -1,0 +1,14 @@
+2025-07-24 00:54:23 : ERR :       QueryTable                     : 
+2025-07-24 00:54:23 : ERR :       QueryTable                     : Connexion à la base 'ISMIvantiSM' sur 192.168.1.47 impossible
+2025-09-02 19:45:42 : ERR :    Query_type                        : 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Services : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VOIPs : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__EnterpriseApplications : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Servers : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__RSAs : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VirtualWorkstations : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__VideoConferences : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Routers : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__TechnicalApplications : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__MobileDevices : HTTP Error:  - 
+2025-09-02 19:45:42 : ERR :    Query_type                        : Erreur lors de l'appel à https://fortil.cegedim.com/HEAT/api/odata/businessobject/CI__Workstations : HTTP Error:  - 
