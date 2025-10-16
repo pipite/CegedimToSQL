@@ -15,157 +15,13 @@ function Trace-CI {
 }
 
 # --------------------------------------------------------
-#               Traitement des LOGS
-# --------------------------------------------------------
-function Level {
-    Param ( [string]$func )
-    
-    $n = (Get-PSCallStack).Count-3
-    $s = ' ' * $n +  $func
-    $s = "{0,-36}" -f $s
-    return $s
-} # code   param -func                                                        Return : [string]    -> Formate la chaine (func)
-function Var_Add {
-	param ( [string]$file, [string]$value)
-
-	if ( $file -eq $script:cfg["intf"]["pathfilelog"] )     { $script:pathfilelog     += $value }
-	if ( $file -eq $script:cfg["intf"]["pathfileerr"] )     { $script:pathfileerr     += $value }
-	if ( $file -eq $script:cfg["intf"]["pathfilemod"] )     { $script:pathfilemod     += $value }
-}
-function Save_logs {
-	$script:pathfilelog | Add-Content -Path $script:cfg["intf"]["pathfilelog"]
-	$script:pathfileerr | Add-Content -Path $script:cfg["intf"]["pathfileerr"]
-	$script:pathfilemod | Add-Content -Path $script:cfg["intf"]["pathfilemod"]
-}
-function OUT {
-	Param ( [string]$trigramme, [string]$func, [string]$msg, [string]$color="White",[bool]$CRLF=$false, [bool]$EMAIL=$false, [bool]$NOSCREEN=$false, [switch]$DBG, [switch]$LOG, [switch]$MOD, [switch]$DLT, [switch]$INA, [switch]$ERR, [switch]$ADDERR, [switch]$ADDWRN)
-
-	# Chaine a afficher
-	$f = Level $func
-	$Stamp = (Get-Date).toString("yyyy-MM-dd HH:mm:ss")
-	$str = "$trigramme : $f : $msg"
-	$stampstr = "$Stamp : $str"
-
-	# Affichage a l'ecran
-
-	if ( $script:cfg["start"]["logtoscreen"] -eq "yes" -and -not $NOSCREEN ) { 
-		if ( $CRLF ) { Write-Host "" }
-		try {
-			Write-Host $str -ForegroundColor $color 
-		} catch {
-			Write-Host $str -ForegroundColor Green
-		}
-	}
-
-	# Ajout dans les fichiers de logs
-	if ( $CRLF ) {
-		if ( $DBG -and $script:cfg["start"]["debug"] -eq "yes" ) { Var_Add $($script:cfg["intf"]["pathfilelog"]) -value $stampstr }
-		if ( $LOG ) { Var_Add $($script:cfg["intf"]["pathfilelog"])     -value "" }
-		if ( $ERR ) { Var_Add $($script:cfg["intf"]["pathfileerr"])     -value "" }
-		if ( $MOD ) { Var_Add $($script:cfg["intf"]["pathfilemod"])     -value "" }
-
-	}
-	if ( $DBG -and $script:cfg["start"]["debug"] -eq "yes" ) { Var_Add $($script:cfg["intf"]["pathfilelog"]) -value $stampstr }
-	if ( $LOG ) { Var_Add $($script:cfg["intf"]["pathfilelog"])     -value $stampstr }
-	if ( $ERR ) { Var_Add $($script:cfg["intf"]["pathfileerr"])     -value $stampstr }
-	if ( $MOD ) { Var_Add $($script:cfg["intf"]["pathfilemod"])     -value $stampstr }
-	
-	if ( $ADDERR ) { $script:ERREUR  += 1 }
-	if ( $ADDWRN ) { $script:WARNING += 1 }
-
-	# Ajoute a Email
-	if ( $EMAIL ) { 
-		if ( $CRLF ) { $script:emailtxt.Add("") }
-		$script:emailtxt.Add($stampstr)	
-	}
-}
-function DBG {
-	Param ( [string]$func, [string]$msg, [switch]$CRLF )
-	if ( $script:cfg["start"]["debug"] -eq "yes" ) { 
-		OUT "DBG" $func $msg "Gray" -DBG -LOG -CRLF $CRLF
-	}
-} # code   param -func, -msg                                                  Return : N/A         -> Ecrit DBG (func) (msg) dans LOG si [start][debugtolog], et a l'ecran [start][debug] = yes
-function LOG {
-	Param ( [string]$func, [string]$msg, [string]$color = "Cyan", [switch]$CRLF, [switch]$EMAIL)
-	OUT "LOG" $func $msg $color -LOG -CRLF $CRLF -EMAIL $EMAIL
-} # code   param -func, -msg, -color, -CRLF, -EMAIL                           Return : N/A         -> Ecrit LOG (func) (msg) dans LOG, et a l'ecran [start][debug] = yes couleur (color)
-function ERR {
-	Param ( [string]$func, [string]$msg, [switch]$CRLF )
-
-	if ( $script:ERREUR -eq 0 ) {
-		OUT "ERR" $func $entete "Red" -ERR -CRLF $CRLF -NOSCREEN $true -EMAIL $true
-	}
-	OUT "ERR" $func $msg "Red" -ERR -LOG -CRLF $CRLF -ADDERR -EMAIL $true
-} # code   param -func, -msg, -CRLF                                           Return : N/A         -> Ecrit ERR (func) (msg) dans ERR, et a l'ecran [start][debug] = yes
-function WRN {
-	Param ( [string]$func, [string]$msg, [switch]$CRLF )
-
-	if ( $script:cfg["start"]["warntoerr"] -eq "yes" ) {
-		OUT "WRN" $func $msg "Magenta" -LOG -CRLF $CRLF -ERR -EMAIL $true -ADDWRN
-	} else {
-		OUT "WRN" $func $msg "Magenta" -LOG -CRLF $CRLF -EMAIL $true -ADDWRN
-	}
-} # code   param -func, -msg, -CRLF                                           Return : N/A         -> Ecrit WRN (func) (msg) dans et sort du script
-function QUIT {
-    Param ( [string]$func, [string]$msg )
-
-    $s = "Duree d'execution : {0:N1} secondes" -f $script:start.Elapsed.TotalSeconds
-
-    if ( $script:ERREUR -eq 0 ) { $c = "Green" } else { $c = "Red" }
-	LOG "QUIT" "$($script:ERREUR) erreur, $($script:WARNING) warning, $s" $c -EMAIL
-    #$script:emailtxt.Add("$Stamp : QUIT : $f : $msg")
-    if ( $script:ERREUR -ne 0 ) {
-		OUT "END" $func $msg $c -LOG
-
-        # Contexte
-        Get-PSCallStack | Where-Object { $_.Command -and $_.Location } | ForEach-Object {
-            if ($_.Command -ne "QUIT") { 
-				OUT "END" "$($_.Command)" "$($_.Location)" "Gray" -DBG -LOG -EMAIL $true
-            } 
-        }
-    }
-
-	# Sujet de l'email
-	if ( -not $script:MailErr ) {
-		$subject = (
-			"$($script:cfg['email']['Subject']) : " +
-			"[$($script:ERREUR) Erreurs], " +
-			"[$($script:WARNING) Warnings]"
-		)
-		SendEmail $subject $script:emailtxt 
-	}
-
-	Save_logs
-    exit 0
-} # code   param -func, -msg                                                  Return : N/A         -> Ecrit ERR (func) (msg) dans et sort du script 
-function QUITEX {
-    Param ( [string]$func, [string]$msg, [switch]$ADDERR )
-
-    $lines = $msg -split "`n"
-    foreach ($line in $lines) { 
-        if ($ADDERR) { 
-            ERR "$func" "$line" }
-        else { LOG "$func" "$line" }
-    }
-    QUIT "$func" "Script interrompu."
-} # code   param -func -msg, -ADDERR                                          Return : N/A         -> Ecrit ERR (func) (msg) dans et sort du script
-function MOD {
-	Param ( [string]$func, [string]$msg, [switch]$CRLF )
-
-	if ( $script:cfg["start"]["ApplyUpdate"] -eq "no" ) { $mod = "SIM" } else { $mod = "MOD" }
-	OUT $mod $func $msg "Yellow" -LOG -MOD -CRLF $CRLF -EMAIL $true
-} # code   param -func, -msg, -CRLF                                           Return : N/A         -> Ecrit MOD (func) (msg) dans LOG, et a l'ecran [start][debug] = yes, saut de ligne si switch -CRLF
-
-# --------------------------------------------------------
 #               Chargement fichier .ini
 # --------------------------------------------------------
 
 function LoadIni {
-	# initialisation variables liste des logs
+	# initialisation variables liste des logs (logs, erreurs, modifications)
 	$script:pathfilelog = @()
 	$script:pathfileerr = @()
-	$script:pathfileina = @()
-	$script:pathfiledlt = @()
 	$script:pathfilemod = @()
 	
 	# sections de base du fichier .ini
@@ -212,44 +68,6 @@ function LoadIni {
 	# Initialisation de la hashtable pour stocker les données CI
 	$script:CI = @{}
 	Trace-CI "LoadIni" "INIT"
-}
-function GetFilePath {
-	param ( [string]$pattern, [switch]$Needed )
-
-	# Remplacement de la chaîne $rootpath$ par le contenu de $script:cfg["intf"]["rootpath"]
-	if ($pattern -match '\$rootpath\$') {
-		$pattern = $pattern -replace '\$rootpath\$', $script:cfg["intf"]["rootpath"]
-	}
-
-	$folder = Split-Path $pattern -Parent
-	$filter = Split-Path $pattern -Leaf
-
-	# Créer le répertoire s'il n'existe pas
-	if (-not (Test-Path -Path $folder -PathType Container)) {
-		try {
-			New-Item -Path $folder -ItemType Directory -Force | Out-Null
-			DBG "GetFilePath" "Répertoire créé : $folder"
-		}
-		catch {
-			QUITEX "GetFilePath" "Impossible de créer le répertoire '$folder' : $($_.Exception.Message)"
-		}
-	}
-
-	$files = Get-ChildItem -Path $folder -Filter $filter -File
-
-	if ($files.Count -eq 1) {
-		$filepath = $files[0].FullName
-	} elseif ($files.Count -eq 0) {
-		if ($Needed) {
-			QUITEX "GetFilePath" "Aucun fichier ne correspond au filtre '$filter' dans '$folder'" -ADDERR
-		} else {
-			WRN "GetFilePath" "Aucun fichier ne correspond au filtre '$filter' dans '$folder'"
-			$filepath = $pattern
-		}
-	} else {
-		QUITEX "GetFilePath" "Plusieurs fichiers correspondent au filtre '$filter' dans '$folder'" -ADDERR
-	}
-	return $filepath
 }
 function Query_type {
     param ($url, [switch]$Debug)
@@ -302,13 +120,49 @@ function Query_type {
             
             DBG "Query_type" "  URL appelée: $currentUrl" -ForegroundColor Gray
             
-            $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Get, $currentUrl)
-            $request.Headers.Accept.Add([System.Net.Http.Headers.MediaTypeWithQualityHeaderValue]::new("application/json"))
-
-            $authValue = "rest_api_key=$script:token"
-            $request.Headers.TryAddWithoutValidation("Authorization", $authValue) | Out-Null
-
-            $response = $client.SendAsync($request).Result
+            # Mécanisme de retry : jusqu'à 3 tentatives avec 2 secondes d'attente
+            $response = $null
+            $maxRetries = 3
+            $retryCount = 0
+            
+            while ($retryCount -lt $maxRetries) {
+                $retryCount++
+                
+                try {
+                    # Créer une nouvelle requête à chaque tentative (HttpRequestMessage ne peut être utilisé qu'une fois)
+                    $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Get, $currentUrl)
+                    $request.Headers.Accept.Add([System.Net.Http.Headers.MediaTypeWithQualityHeaderValue]::new("application/json"))
+                    
+                    $authValue = "rest_api_key=$script:token"
+                    $request.Headers.TryAddWithoutValidation("Authorization", $authValue) | Out-Null
+                    
+                    $response = $client.SendAsync($request).Result
+                    
+                    if ($null -ne $response) {
+                        # Réponse reçue, on sort de la boucle
+                        break
+                    } else {
+                        WRN "Query_type" "Tentative $retryCount/$maxRetries : Réponse null reçue"
+                        if ($retryCount -lt $maxRetries) {
+                            DBG "Query_type" "Attente de 2 secondes avant nouvelle tentative..."
+                            Start-Sleep -Seconds 2
+                        }
+                    }
+                } catch {
+                    WRN "Query_type" "Tentative $retryCount/$maxRetries : Erreur lors de l'envoi de la requête - $($_.Exception.Message)"
+                    if ($retryCount -lt $maxRetries) {
+                        DBG "Query_type" "Attente de 2 secondes avant nouvelle tentative..."
+                        Start-Sleep -Seconds 2
+                    } else {
+                        throw
+                    }
+                }
+            }
+            
+            # Vérification finale que la réponse n'est pas null
+            if ($null -eq $response) {
+                throw "Erreur: Aucune réponse reçue après $maxRetries tentatives"
+            }
             
             if (-not $response.IsSuccessStatusCode) {
                 throw "HTTP Error: $($response.StatusCode) - $($response.ReasonPhrase)"
@@ -530,7 +384,6 @@ function Update_BDD_CI {
 	Update_BDDTable  $script:CI $script:BDDCI  @("RecID") $script:cfg["SQL_Server"]["table"] "Update_BDD_CI" { Query_BDD_CI }
 }
 
-
 function Get-BDDConnectionParams {
     return @{
         server      = $script:cfg["SQL_Server"]["server"]
@@ -606,27 +459,24 @@ function Update_BDDTable {
 # --------------------------------------------------------
 #               Main
 # --------------------------------------------------------
+# Chargement des modules
+. "$PSScriptRoot\Modules\Log.ps1" > $null 
+. "$PSScriptRoot\Modules\Ini.ps1" > $null 
+. "$PSScriptRoot\Modules\Encode.ps1" > $null 
+. "$PSScriptRoot\Modules\StrConvert.ps1" > $null 
+. "$PSScriptRoot\Modules\SendEmail.ps1"  > $null 
 
-# Initialisation Culture pour encodage UTF8 et separator numerique "."
-chcp 65001 > $null # Encodage avec accent
-# Cloner la culture actuelle
-$culture = [System.Globalization.CultureInfo]::CurrentCulture.Clone()
-# Modifier uniquement le séparateur décimal (de ',' à '.')
-$culture.NumberFormat.NumberDecimalSeparator = '.'
-# Appliquer cette culture modifiée à la session en cours
-[System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
 
 $script:cfgFile = "$PSScriptRoot\CegedimToSQL.ini"
-. "$PSScriptRoot\Modules\Ini.ps1" > $null 
 
 LoadIni
 
+SetConsoleToUFT8
+
 Add-Type -AssemblyName System.Web
 
-# Chargement des modules
-. "$PSScriptRoot\Modules\Encode.ps1"     > $null 
-. "$PSScriptRoot\Modules\SendEmail.ps1"  > $null 
-. "$PSScriptRoot\Modules\StrConvert.ps1" > $null 
+# Chargement des modules en fonction du type de transaction SQL Server defini dans le fichier ini
+. "$PSScriptRoot\Modules\SQL - Transaction.ps1" > $null
 if ($script:cfg["start"]["TransacSQL"] -eq "AllInOne" ) {
 	. "$PSScriptRoot\Modules\SQLServer - TransactionAllInOne.ps1" > $null
 } else {
@@ -644,9 +494,6 @@ foreach ($urlKey in $script:cfg["URL"].Keys) {
     Query_type $url
 }
 
-
 Update_BDD_CI
 
 QUIT "MAIN" "Process terminé"
-
-
