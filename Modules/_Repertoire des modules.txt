@@ -1,0 +1,2 @@
+Répertoire ou déposer les Modules nécessaires
+Voir la doc Readme.md pour en connaitre la liste

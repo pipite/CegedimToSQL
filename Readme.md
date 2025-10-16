@@ -9,19 +9,29 @@ Le script interroge l'API REST OData de Cegedim pour récupérer les information
 * Gestion de la pagination automatique des résultats API
 * Support de deux modes de transaction SQL : **AllInOne** ou **OneByOne**
 
-## Prérequis
+## Comment installer ce script
 
 * PowerShell 7 ou supérieur
 * Accès réseau à l'API Ivanti/HEAT de Cegedim
-* Accès à une base de données SQL Server
+* Accès à la base de données SQL Server
 * Token d'authentification API valide
-* Modules PowerShell requis (chargés automatiquement depuis le dossier `Modules/`) :
+
+Recuperer le script sur GitLAB, et déposer les fichiers dans un répertoire du serveur de Script.
+
+### Modules externes
+
+Recuperer les modules nécessaire sur GitLAB, et les déposer dans le répertoire Modules du script.
+
+* Modules PowerShell requis dans le dossier `Modules`) :
   - **Ini.ps1** : Gestion des fichiers de configuration .ini
   - **Log.ps1** : Gestion des logs et traces
   - **Encode.ps1** : Gestion de l'encodage (UTF-8) et décodage des mots de passe
   - **SendEmail.ps1** : Envoi d'emails de notification
   - **StrConvert.ps1** : Conversion et manipulation de chaînes (dates, nombres)
   - **SQLServer - TransactionAllInOne.ps1** ou **SQLServer - TransactionOneByOne.ps1** : Gestion des transactions SQL Server (chargé dynamiquement selon configuration)
+  - **SQL - Transaction.ps1**
+
+Paramétrer le fichier CegedimToSQL.ini
 
 ## Structure du script
 
