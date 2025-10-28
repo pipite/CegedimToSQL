@@ -456,44 +456,47 @@ function Update_BDDTable {
         & $reloadFunction
     }
 }
+
 # --------------------------------------------------------
 #               Main
 # --------------------------------------------------------
-# Chargement des modules
-. "$PSScriptRoot\Modules\Log.ps1" > $null 
-. "$PSScriptRoot\Modules\Ini.ps1" > $null 
-. "$PSScriptRoot\Modules\Encode.ps1" > $null 
-. "$PSScriptRoot\Modules\StrConvert.ps1" > $null 
-. "$PSScriptRoot\Modules\SendEmail.ps1"  > $null 
+	# Chargement des modules
+	$pathmodule = "$PSScriptRoot\Modules"
 
+	if (Test-Path "$pathmodule\Ini.ps1" -PathType Leaf) {
+		. "$pathmodule\Ini.ps1"                        > $null 
+		. (GetPathScript "$pathmodule\Log.ps1")        > $null
+		. (GetPathScript "$pathmodule\Encode.ps1")     > $null
+		. (GetPathScript "$pathmodule\StrConvert.ps1") > $null
+		. (GetPathScript "$pathmodule\SendEmail.ps1")  > $null
+	} else {
+		Write-Host "Fichier manquant : $pathmodule\Ini.ps1" -ForegroundColor Red
+		exit (1)
+	}
 
-$script:cfgFile = "$PSScriptRoot\CegedimToSQL.ini"
+	# Recuperation des parametres passes au script dans $script:cfg
+	$script:cfgFile = "$PSScriptRoot\CegedimToSQL.ini"
+	LoadIni
 
-LoadIni
+	# Parametrage console en UFT8 (chcp 65001 ou 850) pour carractères accentués
+	SetConsoleToUFT8
 
-SetConsoleToUFT8
+    . "$pathmodule\SQL - Transaction.ps1" > $null
+    if ($script:cfg["start"]["TransacSQL"] -eq "AllInOne" ) {
+        . "$pathmodule\SQLServer - TransactionAllInOne.ps1" > $null
+    } else {
+        . "$pathmodule\SQLServer - TransactionOneByOne.ps1" > $null
+    }
 
-Add-Type -AssemblyName System.Web
+    Query_BDD_CI
 
-# Chargement des modules en fonction du type de transaction SQL Server defini dans le fichier ini
-. "$PSScriptRoot\Modules\SQL - Transaction.ps1" > $null
-if ($script:cfg["start"]["TransacSQL"] -eq "AllInOne" ) {
-	. "$PSScriptRoot\Modules\SQLServer - TransactionAllInOne.ps1" > $null
-} else {
-	. "$PSScriptRoot\Modules\SQLServer - TransactionOneByOne.ps1" > $null
-}
+    # Boucle sur toutes les URLs définies dans la section [URL] du fichier .ini
+   LOG "MAIN" "Récupération des équipements Ivanti/HEAT..." -CRLF
+    foreach ($urlKey in $script:cfg["URL"].Keys) {
+        $url = $script:cfg["URL"][$urlKey]
+        Query_type $url
+    }
 
+    Update_BDD_CI
 
-Query_BDD_CI
-
-LOG "MAIN" "Récupération des équipements Ivanti/HEAT..." -CRLF
-
-# Boucle sur toutes les URLs définies dans la section [URL] du fichier .ini
-foreach ($urlKey in $script:cfg["URL"].Keys) {
-    $url = $script:cfg["URL"][$urlKey]
-    Query_type $url
-}
-
-Update_BDD_CI
-
-QUIT "MAIN" "Process terminé"
+    QUIT "MAIN" "Process terminé"
